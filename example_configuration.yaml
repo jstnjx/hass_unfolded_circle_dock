@@ -10,6 +10,10 @@
 #
 # Every service accepts an optional `device_id`. Omit it if you have a single
 # dock configured; otherwise grab the id from Developer Tools → Actions UI.
+#
+# Dock 3 only: set_volume, set_port_mode, send_serial, enable_serial_events,
+# set_port_trigger (and the volume / port entities). The rest work on both
+# Dock 3 and Dock Two.
 # =============================================================================
 
 
@@ -19,13 +23,13 @@
 # service: hass_unfolded_circle_dock.send_ir
 # data:
 #   code: "0000 006D 0022 0002 0155 00AA 0015 0015 0015 0040 ..."
-#   format: pronto
-#   repeat: 0
-#   hold: 0
-#   int_side: true
-#   int_top: false
-#   ext1: false
-#   ext2: false
+#   format: pronto      # pronto or hex
+#   repeat: 0           # >0 repeats; the dock may reply asynchronously
+#   hold: 0             # ms to "hold" the button (firmware permitting)
+#   int_side: true      # internal side blaster (default if none selected)
+#   int_top: false      # internal top blaster
+#   ext1: false         # external IR port 1
+#   ext2: false         # external IR port 2
 
 
 # -----------------------------------------------------------------------------
@@ -41,7 +45,7 @@
 
 
 # -----------------------------------------------------------------------------
-# Set the dock volume (0-100)
+# Set the dock volume (0-100)  [Dock 3 only]
 # -----------------------------------------------------------------------------
 # service: hass_unfolded_circle_dock.set_volume
 # data:
@@ -49,21 +53,25 @@
 
 
 # -----------------------------------------------------------------------------
-# Set status / ethernet LED brightness (0-100 each, both optional)
+# Set status / ethernet LED brightness (0-255 each, both optional)
 # -----------------------------------------------------------------------------
 # service: hass_unfolded_circle_dock.set_brightness
 # data:
-#   status_led: 60
-#   eth_led: 40
+#   status_led: 150
+#   eth_led: 100
 
 
 # -----------------------------------------------------------------------------
-# Put external port 1 into RS232 mode, then send serial data to it
+# Put external port 1 into RS232 mode, then send serial data to it  [Dock 3]
 # -----------------------------------------------------------------------------
 # service: hass_unfolded_circle_dock.set_port_mode
 # data:
 #   port: 1
 #   mode: RS232
+#   baud_rate: 115200      # optional, 300-115200, defaults to 9600
+#   data_bits: 8           # optional, defaults to 8
+#   parity: none           # optional, defaults to none
+#   stop_bits: "1"         # optional, defaults to 1
 #
 # service: hass_unfolded_circle_dock.send_serial
 # data:
@@ -72,12 +80,35 @@
 
 
 # -----------------------------------------------------------------------------
-# Subscribe to incoming serial events on port 1
+# Subscribe to incoming serial events on port 1  [Dock 3]
 # -----------------------------------------------------------------------------
 # service: hass_unfolded_circle_dock.enable_serial_events
 # data:
 #   port: 1
 #   enable: true
+
+
+# -----------------------------------------------------------------------------
+# Control a 5V trigger output  [Dock 3, port must be in TRIGGER_5V mode]
+# -----------------------------------------------------------------------------
+# Latch on:
+# service: hass_unfolded_circle_dock.set_port_trigger
+# data:
+#   port: 1
+#   trigger: true
+#
+# Pulse for 300 ms then auto-release:
+# service: hass_unfolded_circle_dock.set_port_trigger
+# data:
+#   port: 1
+#   trigger: true
+#   duration: 300
+
+
+# -----------------------------------------------------------------------------
+# Reboot the dock
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.reboot
 
 
 # -----------------------------------------------------------------------------
@@ -93,8 +124,8 @@
 automation:
   # ---------------------------------------------------------------------------
   # React to incoming serial data pushed by the dock.
-  # (Enable the stream once via hass_unfolded_circle_dock.enable_serial_events, and
-  #  make sure the port is in RS232 mode.)
+  # (Enable the stream once via hass_unfolded_circle_dock.enable_serial_events,
+  #  and make sure the port is in RS232 mode.)
   # ---------------------------------------------------------------------------
   - alias: "Dock: notify on serial data"
     trigger:
@@ -122,7 +153,27 @@ automation:
           int_side: true
 
   # ---------------------------------------------------------------------------
-  # Lower the dock volume late at night.
+  # Drive an amplifier's 12V/5V trigger from a media player's state.
+  # (Port must be configured as TRIGGER_5V.)
+  # ---------------------------------------------------------------------------
+  - alias: "Dock: amp trigger follows media player"
+    trigger:
+      - platform: state
+        entity_id: media_player.living_room
+        to: "playing"
+        id: "on"
+      - platform: state
+        entity_id: media_player.living_room
+        to: "off"
+        id: "off"
+    action:
+      - service: hass_unfolded_circle_dock.set_port_trigger
+        data:
+          port: 1
+          trigger: "{{ trigger.id == 'on' }}"
+
+  # ---------------------------------------------------------------------------
+  # Lower the dock volume late at night.  [Dock 3]
   # ---------------------------------------------------------------------------
   - alias: "Dock: quiet hours"
     trigger:
