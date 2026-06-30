@@ -47,6 +47,14 @@ BINARY_SENSORS: tuple[DockBinaryDescription, ...] = (
         device_class=BinarySensorDeviceClass.RUNNING,
         value_fn=lambda d: d.get("ir_learning"),
     ),
+    DockBinaryDescription(
+        key="ntp",
+        translation_key="ntp",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        # Dock 3 reports `ntp`; Dock Two firmware reports `sntp`.
+        value_fn=lambda d: d.get("ntp") if "ntp" in d else d.get("sntp"),
+    ),
 )
 
 

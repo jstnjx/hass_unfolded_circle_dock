@@ -19,11 +19,13 @@ from .const import (
     DOMAIN,
     SERVICE_ENABLE_SERIAL_EVENTS,
     SERVICE_IDENTIFY,
+    SERVICE_REBOOT,
     SERVICE_REFRESH,
     SERVICE_SEND_IR,
     SERVICE_SEND_SERIAL,
     SERVICE_SET_BRIGHTNESS,
     SERVICE_SET_PORT_MODE,
+    SERVICE_SET_PORT_TRIGGER,
     SERVICE_SET_VOLUME,
     SERVICE_STOP_IR,
 )
@@ -95,6 +97,16 @@ ENABLE_SERIAL_EVENTS_SCHEMA = vol.Schema(
         **_DEVICE_TARGET,
         vol.Required("port"): vol.All(vol.Coerce(int), vol.Range(min=1)),
         vol.Optional("enable", default=True): cv.boolean,
+    }
+)
+
+SET_PORT_TRIGGER_SCHEMA = vol.Schema(
+    {
+        **_DEVICE_TARGET,
+        vol.Required("port"): vol.All(vol.Coerce(int), vol.Range(min=1)),
+        vol.Optional("trigger", default=True): cv.boolean,
+        # Optional pulse length in milliseconds (auto-release after duration).
+        vol.Optional("duration"): vol.All(vol.Coerce(int), vol.Range(min=1)),
     }
 )
 
@@ -206,6 +218,19 @@ def async_setup_services(hass: HomeAssistant) -> None:
             lambda c: c.api.enable_serial_events(call.data["port"], call.data["enable"]),
         )
 
+    async def handle_set_port_trigger(call: ServiceCall) -> None:
+        await _run(
+            call,
+            lambda c: c.api.set_port_trigger(
+                call.data["port"],
+                call.data["trigger"],
+                call.data.get("duration", 0),
+            ),
+        )
+
+    async def handle_reboot(call: ServiceCall) -> None:
+        await _run(call, lambda c: c.api.reboot())
+
     async def handle_refresh(call: ServiceCall) -> None:
         await _run(call, lambda c: c.async_request_refresh())
 
@@ -223,4 +248,8 @@ def async_setup_services(hass: HomeAssistant) -> None:
     hass.services.async_register(
         DOMAIN, SERVICE_ENABLE_SERIAL_EVENTS, handle_enable_serial_events, schema=ENABLE_SERIAL_EVENTS_SCHEMA
     )
+    hass.services.async_register(
+        DOMAIN, SERVICE_SET_PORT_TRIGGER, handle_set_port_trigger, schema=SET_PORT_TRIGGER_SCHEMA
+    )
+    hass.services.async_register(DOMAIN, SERVICE_REBOOT, handle_reboot, schema=SIMPLE_SCHEMA)
     hass.services.async_register(DOMAIN, SERVICE_REFRESH, handle_refresh, schema=SIMPLE_SCHEMA)

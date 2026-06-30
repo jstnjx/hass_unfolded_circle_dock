@@ -33,6 +33,7 @@ from .const import (
     EVENT_PORT_MODE,
     EVENT_SERIAL_DATA,
     MSG_MSG,
+    PORT_MODE_TRIGGER_5V,
     SIGNAL_DOCK_EVENT,
     SIGNAL_SERIAL_DATA,
     TYPE_EVENT,
@@ -103,6 +104,20 @@ class UnfoldedCircleDockCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             data["serial_tcp"] = await self.api.get_serial_tcp()
         except DockError:
             data.setdefault("serial_tcp", None)
+
+        # Poll the 5V trigger state for any port currently in TRIGGER_5V mode.
+        triggers: dict[int, bool] = {}
+        for port_info in data.get("ports", []):
+            port = port_info.get("port")
+            mode = port_info.get("active_mode") or port_info.get("mode")
+            if port is None or mode != PORT_MODE_TRIGGER_5V:
+                continue
+            try:
+                result = await self.api.get_port_trigger(int(port))
+                triggers[int(port)] = bool(result.get("trigger"))
+            except DockError:
+                continue
+        data["port_triggers"] = triggers
 
         return data
 

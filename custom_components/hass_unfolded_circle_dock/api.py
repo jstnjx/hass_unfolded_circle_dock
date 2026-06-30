@@ -33,6 +33,7 @@ from typing import Any
 import aiohttp
 
 from .const import (
+    CODE_ACCEPTED,
     CODE_OK,
     CODE_UNAUTHORIZED,
     DEFAULT_BAUD_RATE,
@@ -67,6 +68,8 @@ AUTH_TIMEOUT = 10.0
 # ir_send may answer asynchronously (or not at all for repeats); use a short
 # tolerant timeout and treat a missing reply as "accepted".
 IR_SEND_TIMEOUT = 5.0
+# The dock drops the socket right after acknowledging a reboot.
+REBOOT_TIMEOUT = 4.0
 # Reconnect backoff bounds (seconds).
 RECONNECT_MIN_BACKOFF = 1.0
 RECONNECT_MAX_BACKOFF = 60.0
@@ -513,6 +516,17 @@ class UnfoldedCircleDockApi:
     async def identify(self) -> None:
         """Flash the dock LEDs to locate it."""
         await self.send_command("identify")
+
+    async def reboot(self) -> dict[str, Any]:
+        """Reboot the dock.
+
+        The firmware sends a reply and then drops the connection, so a missing
+        response within a short window is treated as accepted.
+        """
+        try:
+            return await self.send_command("reboot", timeout=REBOOT_TIMEOUT)
+        except DockConnectionError:
+            return {MSG_CODE: CODE_ACCEPTED, MSG_MSG: "reboot"}
 
     async def set_volume(self, volume: int) -> None:
         """Set the charging/beep volume (0-100)."""

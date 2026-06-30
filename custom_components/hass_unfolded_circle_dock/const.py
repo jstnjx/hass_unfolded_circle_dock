@@ -145,6 +145,8 @@ SERVICE_SET_BRIGHTNESS: Final = "set_brightness"
 SERVICE_SEND_SERIAL: Final = "send_serial"
 SERVICE_SET_PORT_MODE: Final = "set_port_mode"
 SERVICE_ENABLE_SERIAL_EVENTS: Final = "enable_serial_events"
+SERVICE_SET_PORT_TRIGGER: Final = "set_port_trigger"
+SERVICE_REBOOT: Final = "reboot"
 SERVICE_REFRESH: Final = "refresh"
 
-PLATFORMS: Final = ["sensor", "binary_sensor", "button", "switch"]
+PLATFORMS: Final = ["sensor", "binary_sensor", "button", "number", "switch"]

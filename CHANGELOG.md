@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-06-30
+
+Exposes more of the dock's capabilities that were previously unreachable.
+
+### Added
+- **5 V trigger control (Dock 3).** Each external port that supports
+  `TRIGGER_5V` gets a switch entity, plus a `set_port_trigger` service with an
+  optional `duration` for timed pulses. Previously the trigger could be selected
+  as a port mode but never actually fired.
+- **Reboot** button (restart device class) and `reboot` service.
+- **Number entities** for volume and Status/Ethernet LED brightness, so they can
+  be set straight from the dashboard (created only when the dock reports them).
+- **Diagnostic sensors**: Status/Ethernet LED brightness, reset reason, PoE
+  mode, and an NTP binary sensor (handles both the `ntp` and `sntp` fields).
+
 ## [1.3.0] - 2026-06-30
 
 Makes setup dramatically easier with automatic discovery and model detection.
@@ -97,7 +112,8 @@ Connects to the Unfolded Circle Dock 3 over its local WebSocket API.
   and port-mode changes (`hass_unfolded_circle_dock_*`).
 - Diagnostics download with token, serial, and SSID redacted.
 
-[Unreleased]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.0.0...v1.1.0

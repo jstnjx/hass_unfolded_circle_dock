@@ -5,7 +5,11 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
-from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
+from homeassistant.components.button import (
+    ButtonDeviceClass,
+    ButtonEntity,
+    ButtonEntityDescription,
+)
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
@@ -39,6 +43,13 @@ BUTTONS: tuple[DockButtonDescription, ...] = (
         translation_key="refresh",
         entity_category=EntityCategory.DIAGNOSTIC,
         press_fn=lambda c: c.async_request_refresh(),
+    ),
+    DockButtonDescription(
+        key="reboot",
+        translation_key="reboot",
+        device_class=ButtonDeviceClass.RESTART,
+        entity_category=EntityCategory.CONFIG,
+        press_fn=lambda c: c.api.reboot(),
     ),
 )
 

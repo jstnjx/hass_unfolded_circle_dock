@@ -80,6 +80,18 @@
       },
       "port_mode": {
         "name": "Port {port} mode"
+      },
+      "led_brightness": {
+        "name": "Status LED brightness"
+      },
+      "eth_led_brightness": {
+        "name": "Ethernet LED brightness"
+      },
+      "reset_reason": {
+        "name": "Reset reason"
+      },
+      "poe_mode": {
+        "name": "PoE mode"
       }
     },
     "binary_sensor": {
@@ -91,6 +103,9 @@
       },
       "ir_learning": {
         "name": "IR learning"
+      },
+      "ntp": {
+        "name": "NTP"
       }
     },
     "button": {
@@ -102,6 +117,9 @@
       },
       "refresh": {
         "name": "Refresh sysinfo"
+      },
+      "reboot": {
+        "name": "Reboot"
       }
     },
     "switch": {
@@ -110,6 +128,20 @@
       },
       "ir_learning_switch": {
         "name": "IR learning"
+      },
+      "port_trigger": {
+        "name": "Port {port} 5V trigger"
+      }
+    },
+    "number": {
+      "volume": {
+        "name": "Volume"
+      },
+      "status_led_brightness": {
+        "name": "Status LED brightness"
+      },
+      "eth_led_brightness": {
+        "name": "Ethernet LED brightness"
       }
     }
   },
@@ -281,6 +313,38 @@
     "refresh": {
       "name": "Refresh",
       "description": "Force an immediate refresh of dock system information.",
+      "fields": {
+        "device_id": {
+          "name": "Dock",
+          "description": "Target dock device."
+        }
+      }
+    },
+    "set_port_trigger": {
+      "name": "Set 5V trigger",
+      "description": "Assert, release, or pulse the 5V trigger output of an external port (port must be in TRIGGER_5V mode).",
+      "fields": {
+        "device_id": {
+          "name": "Dock",
+          "description": "Target dock device."
+        },
+        "port": {
+          "name": "Port",
+          "description": "External port number."
+        },
+        "trigger": {
+          "name": "State",
+          "description": "Turn the trigger on or off."
+        },
+        "duration": {
+          "name": "Pulse duration",
+          "description": "Optional auto-release time in milliseconds."
+        }
+      }
+    },
+    "reboot": {
+      "name": "Reboot",
+      "description": "Reboot the dock.",
       "fields": {
         "device_id": {
           "name": "Dock",

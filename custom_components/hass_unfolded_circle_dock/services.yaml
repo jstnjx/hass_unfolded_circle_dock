@@ -276,3 +276,49 @@ refresh:
       selector:
         device:
           integration: hass_unfolded_circle_dock
+
+set_port_trigger:
+  name: Set 5V trigger
+  description: Assert, release, or pulse the 5V trigger output of an external port (port must be in TRIGGER_5V mode).
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: hass_unfolded_circle_dock
+    port:
+      name: Port
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 2
+          mode: box
+    trigger:
+      name: State
+      description: Turn the trigger on (true) or off (false).
+      default: true
+      selector:
+        boolean:
+    duration:
+      name: Pulse duration
+      description: Optional. If set, the trigger auto-releases after this many milliseconds.
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 600000
+          unit_of_measurement: ms
+          mode: box
+
+reboot:
+  name: Reboot
+  description: Reboot the dock.
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: hass_unfolded_circle_dock

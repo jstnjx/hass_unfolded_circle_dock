@@ -99,6 +99,40 @@ SENSORS: tuple[DockSensorDescription, ...] = (
         entity_registry_enabled_default=False,
         value_fn=lambda d: _as_int(d.get("free_heap")),
     ),
+    DockSensorDescription(
+        key="led_brightness",
+        translation_key="led_brightness",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda d: _as_int(d.get("led_brightness")),
+    ),
+    DockSensorDescription(
+        key="reset_reason",
+        translation_key="reset_reason",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda d: d.get("reset_reason"),
+    ),
+)
+
+# Created only when the dock actually reports the value (model/hardware
+# dependent), to avoid permanently-unknown entities.
+OPTIONAL_SENSORS: tuple[DockSensorDescription, ...] = (
+    DockSensorDescription(
+        key="eth_led_brightness",
+        translation_key="eth_led_brightness",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda d: _as_int(d.get("eth_led_brightness")),
+    ),
+    DockSensorDescription(
+        key="poe_mode",
+        translation_key="poe_mode",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda d: d.get("poe_mode"),
+    ),
 )
 
 
@@ -113,6 +147,14 @@ async def async_setup_entry(
     entities: list[SensorEntity] = [
         DockSensor(coordinator, description) for description in SENSORS
     ]
+
+    # Optional sensors only when the dock reports them.
+    data = coordinator.data or {}
+    entities.extend(
+        DockSensor(coordinator, description)
+        for description in OPTIONAL_SENSORS
+        if description.key in data
+    )
 
     # One mode sensor per external port reported in sysinfo.
     for port_info in (coordinator.data or {}).get("ports", []):
