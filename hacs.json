@@ -1,0 +1,7 @@
+{
+  "name": "Unfolded Circle Dock",
+  "render_readme": true,
+  "homeassistant": "2026.6.0",
+  "zip_release": true,
+  "filename": "hass_unfolded_circle_dock.zip"
+}

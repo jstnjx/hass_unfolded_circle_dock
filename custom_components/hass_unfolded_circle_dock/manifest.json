@@ -1,0 +1,12 @@
+{
+  "domain": "hass_unfolded_circle_dock",
+  "name": "Unfolded Circle Dock",
+  "codeowners": ["@jstnjx"],
+  "config_flow": true,
+  "documentation": "https://github.com/jstnjx/hass_unfolded_circle_dock",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/jstnjx/hass_unfolded_circle_dock/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}
