@@ -8,12 +8,18 @@ DOMAIN: Final = "hass_unfolded_circle_dock"
 
 # --- Connection defaults -------------------------------------------------
 # Dock 3 serves the WebSocket Dock-API at ws://<ip>/ws on port 80.
-# (Dock Two used ws://<ip>:946 - configurable here for completeness.)
+# Dock Two serves it at ws://<ip>:946/ (root path, dedicated port).
 DEFAULT_PORT: Final = 80
 DEFAULT_WS_PATH: Final = "/ws"
+DEFAULT_PORT_DOCK2: Final = 946
+DEFAULT_WS_PATH_DOCK2: Final = "/"
 DEFAULT_NAME: Final = "Unfolded Circle Dock"
 # If no custom password/token was set during dock setup, "0000" is used.
 DEFAULT_TOKEN: Final = "0000"
+
+# Dock model identifiers used by the config flow.
+MODEL_DOCK3: Final = "dock3"
+MODEL_DOCK2: Final = "dock_two"
 
 # --- Config entry keys ---------------------------------------------------
 CONF_HOST: Final = "host"
@@ -75,10 +81,49 @@ SIGNAL_SERIAL_DATA: Final = f"{DOMAIN}_serial_data_signal"
 SIGNAL_DOCK_EVENT: Final = f"{DOMAIN}_dock_event_signal"
 
 # --- Port modes ----------------------------------------------------------
-# Known modes from the firmware. The dock also advertises a per-port
-# `supported_modes` list, which is authoritative at runtime.
+# Known modes from the official Dock-API spec (externalPortMode enum). The
+# dock also advertises a per-port `supported_modes` list, which is
+# authoritative at runtime.
 PORT_MODE_RS232: Final = "RS232"
 PORT_MODE_TRIGGER_5V: Final = "TRIGGER_5V"
+EXTERNAL_PORT_MODES: Final = [
+    "AUTO",
+    "NONE",
+    "IR_BLASTER",
+    "IR_EMITTER_MONO_PLUG",
+    "IR_EMITTER_STEREO_PLUG",
+    "TRIGGER_5V",
+    "RS232",
+]
+
+# --- RS232 / UART defaults ----------------------------------------------
+# Used when switching a port to RS232 if the user does not override them.
+# Defaults and ranges follow the Dock-API uartConfiguration schema.
+DEFAULT_BAUD_RATE: Final = 9600
+DEFAULT_DATA_BITS: Final = 8
+DEFAULT_PARITY: Final = "none"
+DEFAULT_STOP_BITS: Final = "1"
+BAUD_RATE_MIN: Final = 300
+BAUD_RATE_MAX: Final = 115200
+
+# Common baud rates offered in the UI (within the 300..115200 range).
+COMMON_BAUD_RATES: Final = [
+    300,
+    600,
+    1200,
+    2400,
+    4800,
+    9600,
+    19200,
+    38400,
+    57600,
+    115200,
+]
+
+# --- LED brightness ------------------------------------------------------
+# set_brightness accepts 0..255 per the Dock-API setBrightnessMsg schema.
+BRIGHTNESS_MIN: Final = 0
+BRIGHTNESS_MAX: Final = 255
 
 # --- Service names -------------------------------------------------------
 SERVICE_SEND_IR: Final = "send_ir"

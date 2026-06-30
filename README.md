@@ -4,7 +4,7 @@
 [![Validate](https://github.com/jstnjx/hass_unfolded_circle_dock/actions/workflows/validate.yml/badge.svg)](https://github.com/jstnjx/hass_unfolded_circle_dock/actions/workflows/validate.yml)
 
 A custom [Home Assistant](https://www.home-assistant.io/) integration for the
-**Unfolded Circle Dock 3** (and compatible docks). It talks to the dock over its
+**Unfolded Circle Dock 3** and **Dock Two**. It talks to the dock over its
 native WebSocket JSON API, authenticates automatically, exposes dock status as
 entities, and surfaces dock actions (IR, serial, identify, volume, …) as Home
 Assistant services.
@@ -70,22 +70,34 @@ Add the integration from the UI:
 
 **Settings → Devices & Services → Add Integration → "Unfolded Circle Dock"**
 
-You will be asked for:
+You'll first pick your **dock model** — *Dock 3* or *Dock Two* — which pre-fills
+the right connection defaults. Then enter:
 
-| Field | Default | Notes |
-| --- | --- | --- |
-| **Host / IP** | — | The dock's IP address or hostname. |
-| **Port** | `80` | Dock 3 serves the API on port 80. (Dock Two used `946`.) |
-| **WebSocket path** | `/ws` | Dock 3 endpoint is `ws://<ip>/ws`. |
-| **Token** | `0000` | The dock PIN/token. If you never set a custom one, it is `0000`. |
-| **Use TLS** | off | Enable only if your dock serves `wss://`. |
-| **Name** | optional | Friendly name override. |
+| Field | Dock 3 default | Dock Two default | Notes |
+| --- | --- | --- | --- |
+| **Host / IP** | — | — | The dock's IP address or hostname. |
+| **Port** | `80` | `946` | Dock 3 serves on port 80; Dock Two on 946. |
+| **WebSocket path** | `/ws` | `/` | Dock 3 is `ws://<ip>/ws`; Dock Two is `ws://<ip>:946/`. |
+| **Token** | `0000` | `0000` | The dock PIN/token; `0000` if never changed. |
+| **Use TLS** | off | off | Enable only if your dock serves `wss://`. |
+| **Name** | optional | optional | Friendly name override. |
 
 During setup the integration opens the WebSocket, sends the auth token, and
-calls `get_sysinfo`. The dock **serial number** is used as the unique ID, so the
-same dock can't be added twice. If the token is wrong you'll get an
-*Invalid authentication* error; if the host is unreachable, *Cannot connect*.
+calls `get_sysinfo` (the one command both docks allow before authentication).
+The dock **serial number** becomes the unique ID, so the same dock can't be
+added twice. A wrong token gives *Invalid authentication*; an unreachable host
+gives *Cannot connect*.
 
+> **Finding the token:** it's the PIN shown in the Unfolded Circle remote/web
+> configurator for the dock. A factory-fresh dock with no custom PIN uses `0000`.
+
+### Dock Two vs Dock 3
+
+Dock Two and Dock 3 share the same core API, but a few features are **Dock 3
+only**: speaker **volume**, the external **ports** (RS232 / 5 V trigger), and
+serial streaming. On a Dock Two those entities simply won't appear and the
+corresponding services return an error if called. IR, identify, LED brightness,
+Wi-Fi/Ethernet status and reboot/reset work on both.
 
 ---
 
@@ -158,8 +170,8 @@ data:
 ```yaml
 service: hass_unfolded_circle_dock.set_brightness
 data:
-  status_led: 60
-  eth_led: 40
+  status_led: 150   # 0-255
+  eth_led: 100      # 0-255
 ```
 
 ### Send serial data — `hass_unfolded_circle_dock.send_serial`
@@ -181,10 +193,17 @@ service: hass_unfolded_circle_dock.set_port_mode
 data:
   port: 1
   mode: RS232
+  baud_rate: 115200      # optional, RS232 only — 300..115200, defaults to 9600
+  data_bits: 8           # optional — 5/6/7/8, defaults to 8
+  parity: none           # optional — none/even/odd, defaults to none
+  stop_bits: "1"         # optional — 1/1.5/2, defaults to 1
 ```
 
-When switching a port to RS232 the integration supplies a sensible default UART
-configuration (115200 baud, 8 data bits, no parity, 1 stop bit).
+When switching a port to RS232 you can set the **baud rate** (and, if needed,
+data bits, parity and stop bits). Anything you omit falls back to the dock's
+documented defaults — `9600 8N1` — so for the common case you only need `port`,
+`mode`, and `baud_rate`. These line settings are ignored for non-RS232 modes,
+and the whole `set_port_mode` service is Dock 3 only.
 
 ### Subscribe to serial events — `hass_unfolded_circle_dock.enable_serial_events`
 

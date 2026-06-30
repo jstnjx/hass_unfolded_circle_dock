@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
 from homeassistant.core import HomeAssistant, ServiceCall, callback
@@ -12,6 +12,10 @@ from homeassistant.helpers import config_validation as cv, device_registry as dr
 
 from .api import DockError
 from .const import (
+    BAUD_RATE_MAX,
+    BAUD_RATE_MIN,
+    BRIGHTNESS_MAX,
+    BRIGHTNESS_MIN,
     DOMAIN,
     SERVICE_ENABLE_SERIAL_EVENTS,
     SERVICE_IDENTIFY,
@@ -54,8 +58,12 @@ SET_VOLUME_SCHEMA = vol.Schema(
 SET_BRIGHTNESS_SCHEMA = vol.Schema(
     {
         **_DEVICE_TARGET,
-        vol.Optional("status_led"): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
-        vol.Optional("eth_led"): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
+        vol.Optional("status_led"): vol.All(
+            vol.Coerce(int), vol.Range(min=BRIGHTNESS_MIN, max=BRIGHTNESS_MAX)
+        ),
+        vol.Optional("eth_led"): vol.All(
+            vol.Coerce(int), vol.Range(min=BRIGHTNESS_MIN, max=BRIGHTNESS_MAX)
+        ),
     }
 )
 
@@ -72,6 +80,13 @@ SET_PORT_MODE_SCHEMA = vol.Schema(
         **_DEVICE_TARGET,
         vol.Required("port"): vol.All(vol.Coerce(int), vol.Range(min=1)),
         vol.Required("mode"): cv.string,
+        # RS232 line settings (used only when mode is RS232).
+        vol.Optional("baud_rate"): vol.All(
+            vol.Coerce(int), vol.Range(min=BAUD_RATE_MIN, max=BAUD_RATE_MAX)
+        ),
+        vol.Optional("data_bits"): vol.All(vol.Coerce(int), vol.In((5, 6, 7, 8))),
+        vol.Optional("parity"): vol.In(("none", "even", "odd")),
+        vol.Optional("stop_bits"): vol.All(cv.string, vol.In(("1", "1.5", "2"))),
     }
 )
 
@@ -174,7 +189,16 @@ def async_setup_services(hass: HomeAssistant) -> None:
         await _run(call, lambda c: c.api.send_serial(call.data["port"], call.data["data"]))
 
     async def handle_set_port_mode(call: ServiceCall) -> None:
-        await _run(call, lambda c: c.api.set_port_mode(call.data["port"], call.data["mode"]))
+        kwargs: dict[str, Any] = {}
+        for key in ("baud_rate", "data_bits", "parity", "stop_bits"):
+            if key in call.data:
+                kwargs[key] = call.data[key]
+        await _run(
+            call,
+            lambda c: c.api.set_port_mode(
+                call.data["port"], call.data["mode"], **kwargs
+            ),
+        )
 
     async def handle_enable_serial_events(call: ServiceCall) -> None:
         await _run(

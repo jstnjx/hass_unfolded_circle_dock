@@ -20,23 +20,34 @@ from .const import (
     CONF_WS_PATH,
     DEFAULT_NAME,
     DEFAULT_PORT,
+    DEFAULT_PORT_DOCK2,
     DEFAULT_TOKEN,
     DEFAULT_WS_PATH,
+    DEFAULT_WS_PATH_DOCK2,
     DOMAIN,
+    MODEL_DOCK2,
+    MODEL_DOCK3,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-STEP_USER_DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_HOST): str,
-        vol.Optional(CONF_PORT, default=DEFAULT_PORT): vol.Coerce(int),
-        vol.Optional(CONF_WS_PATH, default=DEFAULT_WS_PATH): str,
-        vol.Optional(CONF_TOKEN, default=DEFAULT_TOKEN): str,
-        vol.Optional(CONF_USE_TLS, default=False): bool,
-        vol.Optional(CONF_NAME): str,
-    }
-)
+
+def _connection_schema(default_port: int, default_ws_path: str) -> vol.Schema:
+    """Build the connection form schema with model-specific defaults."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_HOST): str,
+            vol.Optional(CONF_PORT, default=default_port): vol.Coerce(int),
+            vol.Optional(CONF_WS_PATH, default=default_ws_path): str,
+            vol.Optional(CONF_TOKEN, default=DEFAULT_TOKEN): str,
+            vol.Optional(CONF_USE_TLS, default=False): bool,
+            vol.Optional(CONF_NAME): str,
+        }
+    )
+
+
+# Used for reconfigure (seeded with the existing entry's values).
+RECONFIGURE_SCHEMA = _connection_schema(DEFAULT_PORT, DEFAULT_WS_PATH)
 
 
 class CannotConnect(HomeAssistantError):
@@ -79,7 +90,39 @@ class UnfoldedCircleDockConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the initial step."""
+        """First step: let the user pick the dock model."""
+        return self.async_show_menu(
+            step_id="user",
+            menu_options=[MODEL_DOCK3, MODEL_DOCK2],
+        )
+
+    async def async_step_dock3(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Connection form pre-filled with Dock 3 defaults (port 80, /ws)."""
+        return await self._async_connection_step(
+            MODEL_DOCK3,
+            _connection_schema(DEFAULT_PORT, DEFAULT_WS_PATH),
+            user_input,
+        )
+
+    async def async_step_dock_two(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Connection form pre-filled with Dock Two defaults (port 946, /)."""
+        return await self._async_connection_step(
+            MODEL_DOCK2,
+            _connection_schema(DEFAULT_PORT_DOCK2, DEFAULT_WS_PATH_DOCK2),
+            user_input,
+        )
+
+    async def _async_connection_step(
+        self,
+        step_id: str,
+        schema: vol.Schema,
+        user_input: dict[str, Any] | None,
+    ) -> ConfigFlowResult:
+        """Shared connect-and-create logic for both dock models."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -106,15 +149,15 @@ class UnfoldedCircleDockConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(title=title, data=user_input)
 
         return self.async_show_form(
-            step_id="user",
-            data_schema=STEP_USER_DATA_SCHEMA,
+            step_id=step_id,
+            data_schema=schema,
             errors=errors,
         )
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Allow changing host/token of an existing entry."""
+        """Allow changing host/port/path/token of an existing entry."""
         entry = self._get_reconfigure_entry()
         errors: dict[str, str] = {}
 
@@ -134,7 +177,7 @@ class UnfoldedCircleDockConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="reconfigure",
             data_schema=self.add_suggested_values_to_schema(
-                STEP_USER_DATA_SCHEMA, entry.data
+                RECONFIGURE_SCHEMA, entry.data
             ),
             errors=errors,
         )

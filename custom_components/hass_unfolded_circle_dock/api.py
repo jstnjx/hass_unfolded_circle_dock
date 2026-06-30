@@ -35,7 +35,11 @@ import aiohttp
 from .const import (
     CODE_OK,
     CODE_UNAUTHORIZED,
+    DEFAULT_BAUD_RATE,
+    DEFAULT_DATA_BITS,
+    DEFAULT_PARITY,
     DEFAULT_PORT,
+    DEFAULT_STOP_BITS,
     DEFAULT_WS_PATH,
     MSG_CODE,
     MSG_COMMAND,
@@ -45,6 +49,7 @@ from .const import (
     MSG_REQ_ID,
     MSG_TOKEN,
     MSG_TYPE,
+    PORT_MODE_RS232,
     SUCCESS_CODES,
     TYPE_AUTH,
     TYPE_AUTH_REQUIRED,
@@ -589,20 +594,30 @@ class UnfoldedCircleDockApi:
         return await self.send_command("get_port_mode", port=port)
 
     async def set_port_mode(
-        self, port: int, mode: str, uart: dict[str, Any] | None = None
+        self,
+        port: int,
+        mode: str,
+        *,
+        baud_rate: int = DEFAULT_BAUD_RATE,
+        data_bits: int = DEFAULT_DATA_BITS,
+        parity: str = DEFAULT_PARITY,
+        stop_bits: str = DEFAULT_STOP_BITS,
+        uart: dict[str, Any] | None = None,
     ) -> None:
         """Set the mode of an external port.
 
-        When switching to ``RS232`` a ``uart`` dict
-        (``baud_rate``/``data_bits``/``parity``/``stop_bits``) is required.
+        When switching to ``RS232`` a ``uart`` object is sent to the dock. Pass
+        ``baud_rate`` (and optionally ``data_bits``/``parity``/``stop_bits``) to
+        configure the line, or supply a complete ``uart`` dict to override all
+        of them. The parameters are ignored for non-RS232 modes.
         """
         payload: dict[str, Any] = {"port": port, "mode": mode}
-        if mode == "RS232":
+        if mode == PORT_MODE_RS232:
             payload["uart"] = uart or {
-                "baud_rate": 115200,
-                "data_bits": 8,
-                "parity": "none",
-                "stop_bits": "1",
+                "baud_rate": baud_rate,
+                "data_bits": data_bits,
+                "parity": parity,
+                "stop_bits": str(stop_bits),
             }
         await self.send_command("set_port_mode", **payload)
 

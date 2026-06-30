@@ -8,7 +8,7 @@ send_ir:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
     code:
       name: Code
       description: The IR code to transmit (e.g. a PRONTO hex string).
@@ -75,7 +75,7 @@ stop_ir:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
 
 identify:
   name: Identify
@@ -86,7 +86,7 @@ identify:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
 
 set_volume:
   name: Set volume
@@ -97,7 +97,7 @@ set_volume:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
     volume:
       name: Volume
       required: true
@@ -116,20 +116,22 @@ set_brightness:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
     status_led:
       name: Status LED
+      description: 0–255.
       selector:
         number:
           min: 0
-          max: 100
+          max: 255
           mode: slider
     eth_led:
       name: Ethernet LED
+      description: 0–255.
       selector:
         number:
           min: 0
-          max: 100
+          max: 255
           mode: slider
 
 send_serial:
@@ -141,7 +143,7 @@ send_serial:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
     port:
       name: Port
       required: true
@@ -165,7 +167,7 @@ set_port_mode:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
     port:
       name: Port
       required: true
@@ -179,7 +181,66 @@ set_port_mode:
       required: true
       example: "RS232"
       selector:
-        text:
+        select:
+          custom_value: true
+          options:
+            - "AUTO"
+            - "NONE"
+            - "IR_BLASTER"
+            - "IR_EMITTER_MONO_PLUG"
+            - "IR_EMITTER_STEREO_PLUG"
+            - "TRIGGER_5V"
+            - "RS232"
+    baud_rate:
+      name: Baud rate
+      description: RS232 only. Line speed in bits/s (300–115200). Defaults to 9600.
+      required: false
+      example: 9600
+      selector:
+        select:
+          custom_value: true
+          options:
+            - "300"
+            - "600"
+            - "1200"
+            - "2400"
+            - "4800"
+            - "9600"
+            - "19200"
+            - "38400"
+            - "57600"
+            - "115200"
+    data_bits:
+      name: Data bits
+      description: RS232 only. Defaults to 8.
+      required: false
+      selector:
+        select:
+          options:
+            - "5"
+            - "6"
+            - "7"
+            - "8"
+    parity:
+      name: Parity
+      description: RS232 only. Defaults to none.
+      required: false
+      selector:
+        select:
+          options:
+            - "none"
+            - "even"
+            - "odd"
+    stop_bits:
+      name: Stop bits
+      description: RS232 only. Defaults to 1.
+      required: false
+      selector:
+        select:
+          options:
+            - "1"
+            - "1.5"
+            - "2"
 
 enable_serial_events:
   name: Enable serial events
@@ -190,7 +251,7 @@ enable_serial_events:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
     port:
       name: Port
       required: true
@@ -214,4 +275,4 @@ refresh:
       required: false
       selector:
         device:
-          integration: unfolded_circle_dock
+          integration: hass_unfolded_circle_dock
