@@ -3,10 +3,15 @@
   "name": "Unfolded Circle Dock",
   "codeowners": ["@jstnjx"],
   "config_flow": true,
+  "dhcp": [
+    { "hostname": "uc-dock*" },
+    { "hostname": "ucd3*" }
+  ],
   "documentation": "https://github.com/jstnjx/hass_unfolded_circle_dock",
   "integration_type": "device",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/jstnjx/hass_unfolded_circle_dock/issues",
   "requirements": [],
-  "version": "1.2.0"
+  "version": "1.3.0",
+  "zeroconf": ["_uc-dock._tcp.local."]
 }

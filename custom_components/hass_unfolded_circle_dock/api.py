@@ -199,17 +199,21 @@ class UnfoldedCircleDockApi:
             self._owns_session = True
         return self._session
 
-    async def async_connect(self) -> None:
-        """Open the WebSocket connection and authenticate once.
+    async def async_connect(self, *, authenticate: bool = True) -> None:
+        """Open the WebSocket connection and optionally authenticate.
 
         Raises :class:`DockConnectionError` or :class:`DockAuthError` on
         failure. Safe to call before :meth:`async_start`, which will adopt the
         already-open connection instead of reconnecting.
-        """
-        await self._open_and_auth()
 
-    async def _open_and_auth(self) -> None:
-        """Open the socket, start the receiver and authenticate."""
+        With ``authenticate=False`` the socket is opened but the auth handshake
+        is skipped. Only ``get_sysinfo`` may be used in that state (the dock
+        allows it unauthenticated), which is handy for discovery probes.
+        """
+        await self._open_and_auth(authenticate=authenticate)
+
+    async def _open_and_auth(self, *, authenticate: bool = True) -> None:
+        """Open the socket, start the receiver and (optionally) authenticate."""
         session = await self._ensure_session()
         self._auth_required_event.clear()
         try:
@@ -232,7 +236,8 @@ class UnfoldedCircleDockApi:
         except asyncio.TimeoutError:
             _LOGGER.debug("No auth_required frame received from %s, continuing", self._host)
 
-        await self.authenticate()
+        if authenticate:
+            await self.authenticate()
 
     async def async_start(self) -> None:
         """Start a self-healing connection loop (reconnect + re-auth)."""

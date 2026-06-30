@@ -66,27 +66,40 @@ This integration is installed as a **HACS custom repository**:
 
 ## Configuration
 
-Add the integration from the UI:
+### Automatic discovery (easiest)
+
+Docks advertise themselves on the network (mDNS `_uc-dock._tcp` and DHCP), so in
+most cases your dock is found automatically:
+
+1. Go to **Settings → Devices & Services**. A discovered **Unfolded Circle
+   Dock** card appears.
+2. Click **Configure**, enter the **token** (default `0000`), and submit.
+
+That's it — the IP, port, path and model are all detected for you.
+
+### Manual setup
+
+If discovery doesn't reach your dock (e.g. it's on another subnet or mDNS is
+blocked), add it by hand:
 
 **Settings → Devices & Services → Add Integration → "Unfolded Circle Dock"**
 
-You'll first pick your **dock model** — *Dock 3* or *Dock Two* — which pre-fills
-the right connection defaults. Then enter:
+Enter just the **host/IP** and **token**. The integration probes the known Dock
+3 (`ws://<ip>/ws`) and Dock Two (`ws://<ip>:946/`) endpoints and **detects the
+model automatically** — you don't need to know which port or path your dock
+uses. Port and path are optional advanced fields; leave them blank unless you
+have a non-standard setup.
 
-| Field | Dock 3 default | Dock Two default | Notes |
-| --- | --- | --- | --- |
-| **Host / IP** | — | — | The dock's IP address or hostname. |
-| **Port** | `80` | `946` | Dock 3 serves on port 80; Dock Two on 946. |
-| **WebSocket path** | `/ws` | `/` | Dock 3 is `ws://<ip>/ws`; Dock Two is `ws://<ip>:946/`. |
-| **Token** | `0000` | `0000` | The dock PIN/token; `0000` if never changed. |
-| **Use TLS** | off | off | Enable only if your dock serves `wss://`. |
-| **Name** | optional | optional | Friendly name override. |
+| Field | Default | Notes |
+| --- | --- | --- |
+| **Host / IP** | — | The dock's IP address or hostname. |
+| **Token** | `0000` | The dock PIN/token; `0000` if never changed. |
+| **Name** | optional | Friendly name override. |
+| **Use TLS** | off | Enable only if your dock serves `wss://`. |
+| **Port / WebSocket path** | auto | Advanced override; blank = auto-detect. |
 
-During setup the integration opens the WebSocket, sends the auth token, and
-calls `get_sysinfo` (the one command both docks allow before authentication).
 The dock **serial number** becomes the unique ID, so the same dock can't be
-added twice. A wrong token gives *Invalid authentication*; an unreachable host
-gives *Cannot connect*.
+added twice (discovery and manual entry de-duplicate against each other).
 
 > **Finding the token:** it's the PIN shown in the Unfolded Circle remote/web
 > configurator for the dock. A factory-fresh dock with no custom PIN uses `0000`.

@@ -1,35 +1,24 @@
 {
   "config": {
+    "flow_title": "{name}",
     "step": {
       "user": {
-        "title": "Select your dock model",
-        "description": "Choose which Unfolded Circle dock you are connecting to. This pre-fills the correct connection defaults.",
-        "menu_options": {
-          "dock3": "Unfolded Circle Dock 3",
-          "dock_two": "Unfolded Circle Dock Two"
-        }
-      },
-      "dock3": {
-        "title": "Connect to your Dock 3",
-        "description": "Enter the connection details. Dock 3 defaults (port 80, path /ws) are pre-filled. The default token is 0000 unless you set a custom one.",
+        "title": "Add your Unfolded Circle Dock",
+        "description": "Enter your dock's IP address or hostname and its token. The model (Dock 3 or Dock Two) is detected automatically. The default token is 0000 unless you set a custom one. Leave port and path blank unless you have a non-standard setup.",
         "data": {
           "host": "Host or IP address",
-          "port": "Port",
-          "ws_path": "WebSocket path",
+          "port": "Port (advanced, leave blank to auto-detect)",
+          "ws_path": "WebSocket path (advanced, leave blank to auto-detect)",
           "token": "Token / password",
           "use_tls": "Use TLS (wss://)",
           "name": "Name (optional)"
         }
       },
-      "dock_two": {
-        "title": "Connect to your Dock Two",
-        "description": "Enter the connection details. Dock Two defaults (port 946, path /) are pre-filled. The default token is 0000 unless you set a custom one. Note: volume and RS232 features are Dock 3 only.",
+      "discovery_confirm": {
+        "title": "Add {name}",
+        "description": "Home Assistant found this Unfolded Circle dock on your network. Enter its token to add it (the default is 0000 unless you set a custom one).",
         "data": {
-          "host": "Host or IP address",
-          "port": "Port",
-          "ws_path": "WebSocket path",
           "token": "Token / password",
-          "use_tls": "Use TLS (wss://)",
           "name": "Name (optional)"
         }
       },
@@ -47,12 +36,13 @@
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect. Check the host, port and path.",
+      "cannot_connect": "Failed to connect. Check the host, and that the dock is on the network.",
       "invalid_auth": "Authentication failed. Check the token/password.",
       "unknown": "An unexpected error occurred."
     },
     "abort": {
       "already_configured": "This dock is already configured.",
+      "cannot_connect": "Couldn't reach the discovered dock.",
       "reconfigure_successful": "Dock reconfigured successfully."
     }
   },

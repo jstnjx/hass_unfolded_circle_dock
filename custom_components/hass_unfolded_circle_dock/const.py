@@ -21,6 +21,17 @@ DEFAULT_TOKEN: Final = "0000"
 MODEL_DOCK3: Final = "dock3"
 MODEL_DOCK2: Final = "dock_two"
 
+# --- Discovery -----------------------------------------------------------
+# Docks advertise themselves over mDNS as `_uc-dock._tcp.local.`.
+ZEROCONF_TYPE: Final = "_uc-dock._tcp.local."
+# Hostname prefixes (Dock Two: "UC-Dock-XXXX", Dock 3: "UCD3-XXXX").
+HOSTNAME_PREFIX_DOCK2: Final = "uc-dock"
+HOSTNAME_PREFIX_DOCK3: Final = "ucd3"
+
+# Endpoint presets per model: (port, ws_path).
+ENDPOINT_DOCK3: Final = (DEFAULT_PORT, DEFAULT_WS_PATH)
+ENDPOINT_DOCK2: Final = (DEFAULT_PORT_DOCK2, DEFAULT_WS_PATH_DOCK2)
+
 # --- Config entry keys ---------------------------------------------------
 CONF_HOST: Final = "host"
 CONF_PORT: Final = "port"

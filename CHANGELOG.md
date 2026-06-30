@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-30
+
+Makes setup dramatically easier with automatic discovery and model detection.
+
+### Added
+- **Automatic discovery** over mDNS/zeroconf (`_uc-dock._tcp`) and DHCP
+  (hostnames `UC-Dock-*` and `UCD3*`). Docks now appear in Home Assistant
+  ready to add — usually you only confirm the token.
+- **Automatic model detection.** Manual setup no longer asks whether you have a
+  Dock 3 or Dock Two; entering a host and token is enough — the integration
+  probes both known endpoints and picks the right one.
+
+### Changed
+- Manual setup is now a single host + token form (port and path are optional
+  advanced overrides instead of required fields). The previous Dock 3 / Dock Two
+  model picker has been removed in favour of auto-detection.
+
+### Notes
+- Discovery reads the unauthenticated `get_sysinfo` to identify the dock by
+  serial, so discovered and manually-added docks de-duplicate correctly.
+
 ## [1.2.0] - 2026-06-30
 
 Adds support for the Unfolded Circle **Dock Two** and corrects several values to
@@ -40,8 +61,8 @@ match the official Dock-API specification.
 
 ## [1.1.0] - 2026-06-30
 
-> Not published as a standalone GitHub release; the changes below shipped
-> as part of 1.2.0.
+> Not published as a standalone GitHub release; the changes below shipped to
+> users as part of 1.2.0.
 
 ### Added
 - `set_port_mode` accepts RS232 line settings: **`baud_rate`** plus optional
@@ -76,7 +97,8 @@ Connects to the Unfolded Circle Dock 3 over its local WebSocket API.
   and port-mode changes (`hass_unfolded_circle_dock_*`).
 - Diagnostics download with token, serial, and SSID redacted.
 
-[Unreleased]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/jstnjx/hass_unfolded_circle_dock/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/jstnjx/hass_unfolded_circle_dock/releases/tag/v1.0.0
