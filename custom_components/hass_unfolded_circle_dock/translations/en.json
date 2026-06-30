@@ -1,0 +1,144 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to your Unfolded Circle Dock",
+        "description": "Enter the connection details for your dock. For a Dock 3 the defaults (port 80, path /ws) are correct. The default token is 0000 unless you set a custom one.",
+        "data": {
+          "host": "Host or IP address",
+          "port": "Port",
+          "ws_path": "WebSocket path",
+          "token": "Token / password",
+          "use_tls": "Use TLS (wss://)",
+          "name": "Name (optional)"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure dock",
+        "description": "Update the connection details for this dock.",
+        "data": {
+          "host": "Host or IP address",
+          "port": "Port",
+          "ws_path": "WebSocket path",
+          "token": "Token / password",
+          "use_tls": "Use TLS (wss://)",
+          "name": "Name (optional)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect. Check the host, port and path.",
+      "invalid_auth": "Authentication failed. Check the token/password.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This dock is already configured.",
+      "reconfigure_successful": "Dock reconfigured successfully."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "name": { "name": "Name" },
+      "hostname": { "name": "Hostname" },
+      "version": { "name": "Firmware version" },
+      "serial": { "name": "Serial number" },
+      "model": { "name": "Model" },
+      "revision": { "name": "Revision" },
+      "uptime": { "name": "Uptime" },
+      "ssid": { "name": "Wi-Fi SSID" },
+      "volume": { "name": "Volume" },
+      "free_heap": { "name": "Free heap" },
+      "port_mode": { "name": "Port {port} mode" }
+    },
+    "binary_sensor": {
+      "ethernet": { "name": "Ethernet" },
+      "wifi": { "name": "Wi-Fi" },
+      "ir_learning": { "name": "IR learning" }
+    },
+    "button": {
+      "identify": { "name": "Identify" },
+      "stop_ir": { "name": "Stop IR" },
+      "refresh": { "name": "Refresh sysinfo" }
+    },
+    "switch": {
+      "serial_tcp": { "name": "Serial TCP" },
+      "ir_learning_switch": { "name": "IR learning" }
+    }
+  },
+  "services": {
+    "send_ir": {
+      "name": "Send IR",
+      "description": "Send an infrared code from the dock.",
+      "fields": {
+        "device_id": { "name": "Dock", "description": "Target dock device." },
+        "code": { "name": "Code", "description": "The IR code to transmit." },
+        "format": { "name": "Format", "description": "The IR code format, e.g. pronto." },
+        "repeat": { "name": "Repeat", "description": "Number of times to repeat the code." },
+        "hold": { "name": "Hold", "description": "Hold the signal for this many milliseconds." },
+        "int_side": { "name": "Internal side blaster", "description": "Emit from the internal side blaster." },
+        "int_top": { "name": "Internal top blaster", "description": "Emit from the internal top blaster." },
+        "ext1": { "name": "External port 1", "description": "Emit from external port 1." },
+        "ext2": { "name": "External port 2", "description": "Emit from external port 2." }
+      }
+    },
+    "stop_ir": {
+      "name": "Stop IR",
+      "description": "Stop an ongoing or repeating IR transmission.",
+      "fields": { "device_id": { "name": "Dock", "description": "Target dock device." } }
+    },
+    "identify": {
+      "name": "Identify",
+      "description": "Flash the dock LEDs to physically locate it.",
+      "fields": { "device_id": { "name": "Dock", "description": "Target dock device." } }
+    },
+    "set_volume": {
+      "name": "Set volume",
+      "description": "Set the dock volume (0-100).",
+      "fields": {
+        "device_id": { "name": "Dock", "description": "Target dock device." },
+        "volume": { "name": "Volume", "description": "Volume level from 0 to 100." }
+      }
+    },
+    "set_brightness": {
+      "name": "Set brightness",
+      "description": "Set the brightness of the status and/or ethernet LEDs.",
+      "fields": {
+        "device_id": { "name": "Dock", "description": "Target dock device." },
+        "status_led": { "name": "Status LED", "description": "Status LED brightness." },
+        "eth_led": { "name": "Ethernet LED", "description": "Ethernet LED brightness." }
+      }
+    },
+    "send_serial": {
+      "name": "Send serial",
+      "description": "Send data to an external port in RS232 mode.",
+      "fields": {
+        "device_id": { "name": "Dock", "description": "Target dock device." },
+        "port": { "name": "Port", "description": "External port number." },
+        "data": { "name": "Data", "description": "The data to send." }
+      }
+    },
+    "set_port_mode": {
+      "name": "Set port mode",
+      "description": "Change the mode of an external port.",
+      "fields": {
+        "device_id": { "name": "Dock", "description": "Target dock device." },
+        "port": { "name": "Port", "description": "External port number." },
+        "mode": { "name": "Mode", "description": "The new mode, e.g. RS232 or TRIGGER_5V." }
+      }
+    },
+    "enable_serial_events": {
+      "name": "Enable serial events",
+      "description": "Subscribe or unsubscribe to incoming serial data events.",
+      "fields": {
+        "device_id": { "name": "Dock", "description": "Target dock device." },
+        "port": { "name": "Port", "description": "External port number." },
+        "enable": { "name": "Enable", "description": "Enable or disable serial events." }
+      }
+    },
+    "refresh": {
+      "name": "Refresh",
+      "description": "Force an immediate refresh of dock system information.",
+      "fields": { "device_id": { "name": "Dock", "description": "Target dock device." } }
+    }
+  }
+}

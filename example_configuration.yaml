@@ -1,0 +1,149 @@
+# =============================================================================
+# Unfolded Circle Dock — example service calls & automations
+# =============================================================================
+#
+# This integration is configured entirely through the UI (config flow), so there
+# is NO YAML setup block to add to configuration.yaml. The snippets below are
+# ready-to-paste examples for:
+#   * Developer Tools → Actions (paste the `service:` blocks), and
+#   * the `automation:` examples (paste into automations.yaml / configuration.yaml).
+#
+# Every service accepts an optional `device_id`. Omit it if you have a single
+# dock configured; otherwise grab the id from Developer Tools → Actions UI.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# Send an IR command (PRONTO hex via the internal side blaster)
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.send_ir
+# data:
+#   code: "0000 006D 0022 0002 0155 00AA 0015 0015 0015 0040 ..."
+#   format: pronto
+#   repeat: 0
+#   hold: 0
+#   int_side: true
+#   int_top: false
+#   ext1: false
+#   ext2: false
+
+
+# -----------------------------------------------------------------------------
+# Stop an ongoing / repeating IR transmission
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.stop_ir
+
+
+# -----------------------------------------------------------------------------
+# Identify the dock (flash its LEDs)
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.identify
+
+
+# -----------------------------------------------------------------------------
+# Set the dock volume (0-100)
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.set_volume
+# data:
+#   volume: 50
+
+
+# -----------------------------------------------------------------------------
+# Set status / ethernet LED brightness (0-100 each, both optional)
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.set_brightness
+# data:
+#   status_led: 60
+#   eth_led: 40
+
+
+# -----------------------------------------------------------------------------
+# Put external port 1 into RS232 mode, then send serial data to it
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.set_port_mode
+# data:
+#   port: 1
+#   mode: RS232
+#
+# service: hass_unfolded_circle_dock.send_serial
+# data:
+#   port: 1
+#   data: "POWER ON\r"
+
+
+# -----------------------------------------------------------------------------
+# Subscribe to incoming serial events on port 1
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.enable_serial_events
+# data:
+#   port: 1
+#   enable: true
+
+
+# -----------------------------------------------------------------------------
+# Force an immediate refresh of the dock system info
+# -----------------------------------------------------------------------------
+# service: hass_unfolded_circle_dock.refresh
+
+
+# =============================================================================
+# Automation examples
+# =============================================================================
+
+automation:
+  # ---------------------------------------------------------------------------
+  # React to incoming serial data pushed by the dock.
+  # (Enable the stream once via hass_unfolded_circle_dock.enable_serial_events, and
+  #  make sure the port is in RS232 mode.)
+  # ---------------------------------------------------------------------------
+  - alias: "Dock: notify on serial data"
+    trigger:
+      - platform: event
+        event_type: hass_unfolded_circle_dock_serial_data
+    action:
+      - service: persistent_notification.create
+        data:
+          title: "Dock serial (port {{ trigger.event.data.port }})"
+          message: "{{ trigger.event.data.data }}"
+
+  # ---------------------------------------------------------------------------
+  # Send an IR "TV power" code every evening at sunset.
+  # ---------------------------------------------------------------------------
+  - alias: "Dock: TV on at sunset"
+    trigger:
+      - platform: sun
+        event: sunset
+    action:
+      - service: hass_unfolded_circle_dock.send_ir
+        data:
+          code: "0000 006D 0022 0002 0155 00AA ..."   # your PRONTO code
+          format: pronto
+          repeat: 1
+          int_side: true
+
+  # ---------------------------------------------------------------------------
+  # Lower the dock volume late at night.
+  # ---------------------------------------------------------------------------
+  - alias: "Dock: quiet hours"
+    trigger:
+      - platform: time
+        at: "22:00:00"
+    action:
+      - service: hass_unfolded_circle_dock.set_volume
+        data:
+          volume: 10
+
+  # ---------------------------------------------------------------------------
+  # React to a port-mode change reported by the dock.
+  # ---------------------------------------------------------------------------
+  - alias: "Dock: log port mode changes"
+    trigger:
+      - platform: event
+        event_type: hass_unfolded_circle_dock_port_mode
+    action:
+      - service: logbook.log
+        data:
+          name: "Dock port mode"
+          message: >-
+            Port {{ trigger.event.data.port }} is now
+            {{ trigger.event.data.active_mode | default(trigger.event.data.mode) }}

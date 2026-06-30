@@ -1,0 +1,217 @@
+send_ir:
+  name: Send IR
+  description: Send an infrared code from the dock.
+  fields:
+    device_id:
+      name: Dock
+      description: Target dock device. Optional if only one dock is configured.
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
+    code:
+      name: Code
+      description: The IR code to transmit (e.g. a PRONTO hex string).
+      required: true
+      example: "0000 006D 0022 0002 0155 00AA ..."
+      selector:
+        text:
+    format:
+      name: Format
+      description: The IR code format.
+      required: true
+      example: "pronto"
+      selector:
+        select:
+          custom_value: true
+          options:
+            - "pronto"
+            - "hex"
+    repeat:
+      name: Repeat
+      description: Number of times to repeat the code.
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 50
+          mode: box
+    hold:
+      name: Hold (ms)
+      description: Hold the IR signal for this many milliseconds (firmware permitting).
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 10000
+          mode: box
+    int_side:
+      name: Internal side blaster
+      default: false
+      selector:
+        boolean:
+    int_top:
+      name: Internal top blaster
+      default: false
+      selector:
+        boolean:
+    ext1:
+      name: External port 1
+      default: false
+      selector:
+        boolean:
+    ext2:
+      name: External port 2
+      default: false
+      selector:
+        boolean:
+
+stop_ir:
+  name: Stop IR
+  description: Stop an ongoing or repeating IR transmission.
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
+
+identify:
+  name: Identify
+  description: Flash the dock LEDs to physically locate it.
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
+
+set_volume:
+  name: Set volume
+  description: Set the dock charging/beep volume (0-100).
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
+    volume:
+      name: Volume
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+
+set_brightness:
+  name: Set brightness
+  description: Set the brightness of the status and/or ethernet LEDs.
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
+    status_led:
+      name: Status LED
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+    eth_led:
+      name: Ethernet LED
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+
+send_serial:
+  name: Send serial
+  description: Send data to an external port configured in RS232 mode.
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
+    port:
+      name: Port
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 2
+          mode: box
+    data:
+      name: Data
+      required: true
+      selector:
+        text:
+
+set_port_mode:
+  name: Set port mode
+  description: Change the mode of an external port (e.g. RS232, TRIGGER_5V).
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
+    port:
+      name: Port
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 2
+          mode: box
+    mode:
+      name: Mode
+      required: true
+      example: "RS232"
+      selector:
+        text:
+
+enable_serial_events:
+  name: Enable serial events
+  description: Subscribe (or unsubscribe) to incoming serial data events for a port.
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
+    port:
+      name: Port
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 2
+          mode: box
+    enable:
+      name: Enable
+      default: true
+      selector:
+        boolean:
+
+refresh:
+  name: Refresh
+  description: Force an immediate refresh of the dock system information.
+  fields:
+    device_id:
+      name: Dock
+      required: false
+      selector:
+        device:
+          integration: unfolded_circle_dock
